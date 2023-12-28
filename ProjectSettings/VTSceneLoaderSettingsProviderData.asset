@@ -1,0 +1,29 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &1
+MonoBehaviour:
+  m_ObjectHideFlags: 61
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 3fddf277163bb411f9e35e25135173f7, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  customSettingsInfos:
+  - tagTexture: {fileID: 2800000, guid: e02d01f1e6a2a4fbf87e21e4e4799fd0, type: 3}
+  - tagTexture: {fileID: 2800000, guid: 8d8e6f619cd634f7ca4f81d882d4b62e, type: 3}
+  - tagTexture: {fileID: 2800000, guid: 326453c404f3140edbfcb06e6c28d334, type: 3}
+  - tagTexture: {fileID: 2800000, guid: 0a8180734877b4902a01817bc96d3266, type: 3}
+  - tagTexture: {fileID: 2800000, guid: fffed010d749c48ee881e3c278e043ee, type: 3}
+  - tagTexture: {fileID: 2800000, guid: 636de4fd4a3264268a13bcf8e1fef595, type: 3}
+  - tagTexture: {fileID: 2800000, guid: 1aca9926c61674af5918f7e9ff6039bc, type: 3}
+  - tagTexture: {fileID: 2800000, guid: f545e43e9faa94c82985d8ebbe84bfa8, type: 3}
+  - tagTexture: {fileID: 2800000, guid: 7cba41c66728f4faeb2f56be8cf897f0, type: 3}
+  - tagTexture: {fileID: 2800000, guid: 00d8d629a3c354ac8b84d4a7ed510d3c, type: 3}
+  - tagTexture: {fileID: 2800000, guid: 95979d14b643840e8b9b24460dfc8f92, type: 3}
+  tagWindowRowCount: 2
+  showCustomSceneIndex: 1
+  showBuildSettingsScenes: 1
