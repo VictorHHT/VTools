@@ -1,15 +1,25 @@
 # VTools
  **Victor Toolkit** for Unity Game And Editor Development
+ 
+ [![Unity 2021.3+](https://img.shields.io/badge/Unity-2021.3%2B-blue.svg)](https://unity3d.com/get-unity/download)
+ [![License: MIT](https://img.shields.io/badge/License-MIT-brightgreen.svg)](https://github.com/VictorHHT/VTools/blob/main/LICENSE)
 
 <p align="center"><img src="ReadMeImages/VTLogo.jpg" alt="VTLogo" height="20%" width="30%" align="center" /></p>
 
 ## VTCustomPreview 
-**VTCustomPreview** enhances your scene workflow by providing a **dynamic** **preview** directly within the hierarchy. Enjoy fluid navigation with rotation, scrolling, and panning using WASD/Arrow Keys to view objects from various angles. You can also adjust the lighting in the preview scene. The camera position and distance are automatically optimized to encompass all objects.
+**VTCustomPreview** enhances your scene workflow by providing you with an **interactive preview** window for every object in the hierarchy. 
+* **Fully Featured:** Support rotating, zooming, and panning of the camera. Utilize tweens and smooth functions to offer the best possible interactive experience.
+* **Functional and Fluid:** Featuring quick left, front, top views with a click of a button, scene brightness adjustment, and reset functionality, along with multi-stage animations.
+* **Automatic Calculation:** Automatically calculate the preview camera distance and position to encompass all objects in the preview.
+* **Support Majority of Objects:** Work for almost all objects with a renderer (Mesh Renderer, Skinned Mesh Renderer, Sprite Renderer) and UGUI items.
 
 <p align="center"><img src="ReadMeImages/VTCustomPreview Demo.gif" alt="VTCustomPreview" title="VTCustomPreview" width="40%" /></p>
 
 ## VTRevealer 
-**VTRevealer** simplifies the process of selecting a specific object from a group of overlapping ones. Pressing Cmd/Ctrl + Shift + Right Mouse Button on the line of sight in the scene view, and all the overlapping objects in that line will be listed in the window, allowing you to select and focus on the one you want. This tool can pick any objects that have a **concrete** bound (with Renderer or Collider) or have a logo (Camera, Directional Light, etc.). UI elements are also listed and if they are on a Canvas with **Overlay** render mode, they are also being sorted based on the **rendering precedence** (order in the hierarchy).
+**VTRevealer** simplifies the process of selecting a specific object from a group of overlapping ones. Pressing Cmd/Ctrl + Shift + Right Mouse Button on the line of sight in the scene view, and all the overlapping objects in that line will be listed in the window, allowing you to select and focus on the one you want. 
+* **Support All Objects:** Supports all visible objects in the scene, including models, sprites, and even objects with only icons but no renderer, such as Main Camera, Directional Light, etc.
+* **Separated List:** The picked GameObjects and UI elements are displayed in separate lists, sorted based on distance (for GameObjects) or rendering order on the Canvas (for UI).
+* **Outline Transition:** Smoothly transition from the outline of one object to another's position and size using VTEditorTween.
 
 <img src="ReadMeImages/VTRevealerWindow Demo.gif" alt="VTRevealerWindow" title="VTRevealerWindow"/>
 
@@ -17,17 +27,56 @@
 
 ## VTHierarchy
 Elevate Unity hierarchy clarity with alternating row shading, intuitive foldouts, and clear object indentations for a more organized and efficient workflow. Selecting objects at the same hierarchy level under the same parent can also be done through the right-click menu.
-<p align="center"><img src="ReadMeImages/VTHierarchy Indentation Line.png" alt="VTHierarchy Indentation Line" height="30%" width="30%" /></p>
+<p align="center"><img src="ReadMeImages/VTHierarchy Indentation Line.png" alt="VTHierarchy Indentation Line" height="25%" width="25%" /></p>
 
 ## VTSceneLoader 
-**VTSceneLoader** allows you to manage and load various scenes in one place. You can assign each scene in the custom scene list a **tag** with an **icon** and **color**. To add a scene to the custom scene list, you can **choose** one from the selection popup or **drag** the scene directly to the “Custom Scene List” title. More functionalities can be accessed by pressing the “Three Dot” icon on the top right of the window. The button to the right of the **Load button** specifies whether the current scene should be added to build settings if **ApplyToBuildSettings** is pressed. To **open** this window, naviagte to Victor/Tools/Dev Window on the top tool bar. You can add custom icons to this folder **relative** to your project: Victor/VTools/Editor/VTUtilities/VTSceneLoader/Resources/VTSceneLoader Tag Icons. You can also customize the order of the icons displayed when adding them and more in ProjectSettings/VTSceneLoader tab. The custom scene list is being saved after assembly reload, but it's nice to save it manually by clicking the **Save** button.
+**VTSceneLoader** centralizes scene management and loading, allowing you to categorize scenes with tags, easily add scenes to the custom list, access additional features through the "Three Dot" menu in the upper right corner, and customize icon order in ProjectSettings/VTSceneLoader.
+* **Custom Scene List:** Assign icon and color to a tag in the custom scene list.
+* **Easy Addition:** Add scenes by choosing from the selection popup or dragging a scene asset directly to the "Custom Scene List" title.
+* **Copy & Paste:** You can copy the color and icon of a tag and paste on other tags.
+* **Fuzzy Search:** Use fuzzy match algorithm to filter scenes with accuracy, efficiency and speed.
+* **Build Settings Integration:** Specify whether to add multiple custom scenes to build settings by simply dragging.
+* **Custom Icons:** Add custom icons to the project folder and customize their order in ProjectSettings/VTSceneLoader.
+* **Automatic Saving:** The custom scene list is saved after assembly reload, and manual saving is available with the "Save" button.
 
 <p align="center"><img src="ReadMeImages/VTSceneLoader Demo.gif" alt="VTSceneLoader Demo" height="30%" width="30%" /></p>
 
 ## VTPrefabLoader
-**VTPrefabLoader** provides you with a place to hold and manage the prefabs that you care about the most. You can add them by choosing one from the selection popup or by dragging a bunch of them to the title of the secondary reorderable list directly. You can also drag from the preview icon of the prefab to the scene to add them quickly.
+**VTPrefabLoader** provides you with a place to hold and manage the prefabs that you care about the most. You can add them by choosing one from the selection popup or by dragging a bunch of them to the title of the secondary reorderablelist directly. You can also drag from the preview icon of the prefab to the scene to add them quickly.
+* **Nested Reorderable List:** Outer lists are for categorization, and inner lists are for storing prefabs under each category.
+* **Drag & Drop:** You can drag from the preview image directly to **Scene View**, **Hierarchy** and **Project Browser** to create **instance** of the object or a **prefab** out of it.
+* **Automatic Saving:** Similar to VTSceneLoader.
 
 <p align="center"><img src="ReadMeImages/VTPrefabLoader Demo.gif" alt="VTPrefabLoader Demo" height="30%" width="30%"/></p>
+
+## VTHighlighter
+**VTHighlighter** Introducing VTHighlighter, an easy to use and customizable scene object highlighter, allowing you to highlight scene objects with one line, yes, one line only!
+* **Simultaneous Highlight:** You can employ multiple VTHighlighter instances, each tailored to highlight objects in distinct ways, such as root object color, children color, fade-in and out tweens, and more. This allows you to highlight multiple scene objects in diverse ways simultaneously without being restricted to single Command Buffer or highlight material.
+* **Advanced Tweening:** Each tween will start with the duration relative to the playing progress of previously interrupted tween, and the tween will not start playing if another one of the same kind(FadeIn or FadeOut) is playing, preventing a sudden change in fading effect from occuring.
+
+<p align="center"><img src="ReadMeImages/VTHighlighter.gif" alt="VTHighlighter" width="40%"/></p>
+
+```C#
+// Typical use case:
+// 1: Create a static VTHighlighter reference in the Type it belongs to 
+private static VTHighlighter s_Highlighter;
+
+// 2: Create an instance and store it in OnEnable or the constructor if null
+if (s_Highlighter == null)
+{
+    s_Highlighter = new VTHighlighter();
+    // You can also change its settings here
+    s_Highlighter.fadeInDuration = 0.2f;
+    s_Highlighter.fadeOutEaseType = EditorTween.EaseType.EaseOutQuad;
+    s_Highlighter.autoRemove = false;
+}
+
+// 3: Highlight the scene object by providing the GameObject reference as the argument
+s_Highlighter.HighlightSceneObject(objTransform.gameObject);
+
+// 4: Remove the highlight with also one line
+s_Highlighter.RemoveHighlightedSceneObject(objTransform.gameObject);
+```
 
 ## SnapToSurface
 Allowing you to snap a 3D object with a renderer to the surface of other objects, making them touch each other. You can perform snap based on either the world axis or the local axis of the object. 
@@ -37,7 +86,10 @@ Allowing you to snap a 3D object with a renderer to the surface of other objects
 <p align="center"><img src="ReadMeImages/Snap To Surface Local Axis Mode.png" alt="Snap To Surface Local Axis Mode" height="30%" width="30%" /></p>
 
 ## VTEditorTween
-An Editor tween library built for **simplicity**, **flexibility** and **extensibility**. Use static and extension methods for tweening various variable types like float, int, Vector2, and more. Customize tweens with ease by chaining everything and defining your unique way of tweening a variable.
+An Editor tween library built for **simplicity**, **flexibility** and **extensibility**. 
+* **Simplicity:** Easy to use, with concise syntax and employing the Fluent Builder design pattern. All Tween settings can be connected seamlessly through Extension Methods. The introduction of the VTweenConfig class eliminates the tedious process of copy-pasting, reducing the likelihood of errors when modifying settings at multiple places.
+* **Flexibility:** It offers dozens of Extension Methods, allowing you to mold a tween into any desired form. It supports all common Ease Functions, and for specific functions like Ease Back, custom parameters can be provided to adjust the animation effect.
+* **Extensibility:** Utilizing Generics, you can effortlessly expand to support a wider range of Tween types. It also allows defining multiple ways to Tween a particular type. For instance, with String Tween, you can choose to append characters from the left one by one or convert it to an int value and update it from the right in a clock-like manner until it matches the target String.
 
 ### Usage
 ```C#
