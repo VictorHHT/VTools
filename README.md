@@ -50,7 +50,7 @@ Elevate Unity hierarchy clarity with alternating row shading, intuitive foldouts
 <p align="center"><img src="ReadMeImages/VTPrefabLoader Demo.gif" alt="VTPrefabLoader Demo" height="30%" width="30%"/></p>
 
 ## VTHighlighter
-**VTHighlighter** Introducing VTHighlighter, an easy to use and customizable scene object highlighter, allowing you to highlight scene objects with one line, yes, one line only!
+**VTHighlighter** An easy to use and customizable scene object highlighter, allowing you to highlight scene objects super easily!
 * **Simultaneous Highlight:** You can employ multiple VTHighlighter instances, each tailored to highlight objects in distinct ways, such as root object color, children color, fade-in and out tweens, and more. This allows you to highlight multiple scene objects in diverse ways simultaneously without being restricted to single Command Buffer or highlight material.
 * **Advanced Tweening:** Each tween will start with the duration relative to the playing progress of previously interrupted tween, and the tween will not start playing if another one of the same kind(FadeIn or FadeOut) is playing, preventing a sudden change in fading effect from occuring.
 
