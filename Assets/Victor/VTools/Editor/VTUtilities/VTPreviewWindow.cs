@@ -12,6 +12,7 @@ namespace Victor.Tools
     {
         public event Action onOpenCallback;
         public event Action onCloseCallback;
+
         private readonly float m_WindowWidth;
         private readonly float m_WindowHeight;
         private readonly float m_FixedControlWidth = 60;
@@ -127,19 +128,20 @@ namespace Victor.Tools
                 editorWindow.position = newPosition;
             }
 
-            InitializeTweens();
+            InitializeWindowSizeTweens();
             onOpenCallback?.Invoke();
         }
 
         public override void OnClose()
         {
             EditorApplication.update -= editorWindow.Repaint;
+
             onCloseCallback?.Invoke();
             Object.DestroyImmediate(m_PreviewEditor);
             m_PreviewEditor = null;
         }
 
-        private void InitializeTweens()
+        private void InitializeWindowSizeTweens()
         {
             Vector3 targetWindowSize = new Vector3(m_WindowWidth, m_WindowHeight);
 
@@ -152,7 +154,7 @@ namespace Victor.Tools
                 {
                     editorWindow.Repaint();
 
-                    if (m_WindowSizeTween.m_Time > 0.4f && !m_SizeAnimFirstStageComplete)
+                    if (m_WindowSizeTween.m_Progress > 0.4f && !m_SizeAnimFirstStageComplete)
                     {
                         m_WindowSizeTween.Remove();
                         m_SizeAnimFirstStageComplete = true;

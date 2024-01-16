@@ -148,10 +148,9 @@ namespace Victor.Tools
         public static Rect ScaleAroundCenter(this Rect rect, float scale)
         {
             var center = rect.center;
-            rect.xMin = center.x + ((rect.xMin - center.x) * scale);
-            rect.yMin = center.y + ((rect.yMin - center.y) * scale);
-            rect.xMax = center.x + ((rect.xMax - center.x) * scale);
-            rect.yMax = center.y + ((rect.yMax - center.y) * scale);
+            var size = rect.size * scale;
+            rect.min = center - size / 2;
+            rect.max = center + size / 2;
             return rect;
         }
 

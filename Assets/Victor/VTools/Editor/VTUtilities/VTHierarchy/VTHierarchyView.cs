@@ -18,6 +18,7 @@ namespace Victor.Tools
         private static bool s_ClearTempPreviewResultedChange;
         private static bool s_PreviewWindowOpenOrClose;
         private static VTPreviewWindow s_ObjectPreviewWindowContent;
+        private static VTHighlighter s_Highlighter;
 
         public enum SiblingIndex
         {
@@ -33,6 +34,11 @@ namespace Victor.Tools
             // We don't call ClearTemporaryPreview because we want to recache objects
             Undo.undoRedoPerformed += UnityEditorDynamic.AssetPreview.ClearTemporaryAssetPreviews();
             sceneObjCacheDict = new Dictionary<int, VTSceneObjectCache>();
+
+            if (s_Highlighter == null)
+            {
+                s_Highlighter = new VTHighlighter();
+            }
         }
 
         private static void HierarchyWindowItemOnGUI(int instanceID, Rect selectionRect)
@@ -182,7 +188,7 @@ namespace Victor.Tools
             VTGUI.RevertGUIColor();
             GUI.DrawTexture(previewIconRect, texture, ScaleMode.ScaleToFit);
 
-            if (Event.current.type == EventType.MouseDown)
+            if (Event.current.type == EventType.MouseDown && Event.current.button == 0)
             {
                 if (previewIconRect.Contains(Event.current.mousePosition))
                 {
@@ -191,8 +197,20 @@ namespace Victor.Tools
                     showRect.y += 2;
 
                     s_ObjectPreviewWindowContent = new VTPreviewWindow(objectCache.objTransform.gameObject, k_PreviewWindowWidth, k_PreviewWindowHeight, hasModelPreview);
-                    s_ObjectPreviewWindowContent.onOpenCallback += PreviewWindowOpenOrClose;
-                    s_ObjectPreviewWindowContent.onCloseCallback += PreviewWindowOpenOrClose;
+
+                    // Use lambda expression to capture variables in the scope, using a function that accepts a parameter is otherwise impossible because onOpenCallback expects an Action
+                    s_ObjectPreviewWindowContent.onOpenCallback += () =>
+                    {
+                        s_PreviewWindowOpenOrClose = true;
+                        s_Highlighter.HighlightSceneObject(objectCache.objTransform.gameObject);
+                    };
+
+                    s_ObjectPreviewWindowContent.onCloseCallback += () =>
+                    {
+                        s_PreviewWindowOpenOrClose = true;
+                        s_Highlighter.RemoveHighlightedSceneObject(objectCache.objTransform.gameObject);
+                    };
+
                     PopupWindow.Show(showRect, s_ObjectPreviewWindowContent);
                     Event.current.Use();
                 }
@@ -241,11 +259,6 @@ namespace Victor.Tools
         {
             bool searching = UnityEditorDynamic.SceneHierarchyWindow.lastInteractedHierarchyWindow.sceneHierarchy.hasSearchFilter;
             return searching;
-        }
-
-        private static void PreviewWindowOpenOrClose()
-        {
-            s_PreviewWindowOpenOrClose = true;
         }
     }
 }

@@ -24,7 +24,7 @@ namespace Victor.EditorTween
         // duration of the actual tween, without delays
         internal float m_Duration = 0.5f;
         // In Range 0 - 1
-        internal float m_Time = 0f;
+        internal float m_Progress = 0f;
         internal float m_CurrentInitialDelay = 0f;
         internal float m_CurrentLoopDelay = 0f;
         internal float m_LastUpdatedTimeStamp;
@@ -129,8 +129,8 @@ namespace Victor.EditorTween
         public virtual void Reset()
         {
             Initialize();
-            m_Time = 0;
-            ApplyTween(m_Time);
+            m_Progress = 0;
+            ApplyTween(m_Progress);
 
             // Recover from complete state
             m_Completed = false;
@@ -173,12 +173,12 @@ namespace Victor.EditorTween
             m_CurrentLoopDelay = 0;
             m_LastUpdatedTimeStamp = 0;
 
-            if (m_Time == 1 || m_PlayDirection == PlayDirection.Forward && m_Time > 0 && m_Time != 1)
+            if (m_Progress == 1 || m_PlayDirection == PlayDirection.Forward && m_Progress > 0 && m_Progress != 1)
             {
                 m_PlayDirection = PlayDirection.Backward;
                 m_OnRewind?.Invoke();
             }
-            else if (m_Time == 0 || m_PlayDirection == PlayDirection.Backward && m_Time < 1 && m_Time != 0)
+            else if (m_Progress == 0 || m_PlayDirection == PlayDirection.Backward && m_Progress < 1 && m_Progress != 0)
             {
                 m_PlayDirection = PlayDirection.Forward;
                 m_OnRewind?.Invoke();
@@ -190,14 +190,14 @@ namespace Victor.EditorTween
             // If play style is normal, we complete the tween by setting current time to duration
             if (m_PlayStyle == PlayStyle.Normal)
             {
-                m_Time = 1;
+                m_Progress = 1;
             }
             else
             {
-                m_Time = 0;
+                m_Progress = 0;
             }
 
-            ApplyTween(m_Time);
+            ApplyTween(m_Progress);
             m_Completed = true;
             m_Paused = true;
             m_EndReached = false;
@@ -240,7 +240,7 @@ namespace Victor.EditorTween
 
         internal virtual void Start()
         {
-            m_Time = 0;
+            m_Progress = 0;
             m_Paused = false;
             m_OnStart?.Invoke();
             m_Started = true;

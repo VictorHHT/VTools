@@ -89,13 +89,13 @@ namespace Victor.EditorTween
                     tween.Start();
                 }
 
-                tween.m_Time += tween.directionalTimeDelta / tween.m_Duration;
+                tween.m_Progress += tween.directionalTimeDelta / tween.m_Duration;
                 tween.m_OnValueChanged?.Invoke();
-                tween.ApplyTween(tween.m_Time);
+                tween.ApplyTween(tween.m_Progress);
 
-                if (tween.m_Time > 1)
+                if (tween.m_Progress > 1)
                 {
-                    tween.m_Time = 1;
+                    tween.m_Progress = 1;
                     bool shouldApplyTween = true;
                     tween.m_OnValueChanged?.Invoke();
 
@@ -119,7 +119,7 @@ namespace Victor.EditorTween
                     else
                     {
                         // Normal playstyle and not rewinding
-                        tween.m_Time = 0;
+                        tween.m_Progress = 0;
                         shouldApplyTween = false;
                         // End reached 
                         tween.m_EndReached = true;
@@ -127,12 +127,12 @@ namespace Victor.EditorTween
 
                     if (shouldApplyTween)
                     {
-                        tween.ApplyTween(tween.m_Time);
+                        tween.ApplyTween(tween.m_Progress);
                     }    
                 }
-                else if (tween.m_Time < 0)
+                else if (tween.m_Progress < 0)
                 {
-                    tween.m_Time = 0;
+                    tween.m_Progress = 0;
                     tween.m_OnValueChanged?.Invoke();
 
                     // If rewind to time <= 0
@@ -154,7 +154,7 @@ namespace Victor.EditorTween
                         tween.m_EndReached = true;
                     }
 
-                    tween.ApplyTween(tween.m_Time);
+                    tween.ApplyTween(tween.m_Progress);
                 }
             }
 

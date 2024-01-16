@@ -68,6 +68,18 @@ namespace Victor.Tools
         }
 
         /// <summary>
+        /// Checks if two float values are approximately equal within a given tolerance.
+        /// </summary>
+        /// <param name="a">The first float value.</param>
+        /// <param name="b">The second float value.</param>
+        /// <param name="tolerance">The allowable tolerance for equality.</param>
+        /// <returns>True if approximately equal, false otherwise.</returns>
+        public static bool Approximately(float a, float b, float tolerance = 0.0001f)
+        {
+            return Mathf.Abs(a - b) <= tolerance;
+        }
+
+        /// <summary>
         /// Determines the precision of a floating-point number.
         /// </summary>
         /// <param name="f">The floating-point number.</param>

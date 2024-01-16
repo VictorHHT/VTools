@@ -12,4 +12,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c76e86823b904b67a4b0eeef46f6153, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  m_CustomScenes: []
+  m_CustomScenes:
+  - sceneAsset: {fileID: 102900000, guid: 2cda990e2423bbf4892e6590ba056729, type: 3}
+    shouldAdd: 1
+    sceneTagInfo:
+      tagTexture: {fileID: 2800000, guid: 00d8d629a3c354ac8b84d4a7ed510d3c, type: 3}
+      textureMissing: 0
+      tagColor: {r: 1, g: 1, b: 1, a: 1}

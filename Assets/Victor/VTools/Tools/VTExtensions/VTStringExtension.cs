@@ -1,5 +1,7 @@
 using System;
+using System.Collections.Generic;
 using System.Text;
+using System.Text.RegularExpressions;
 using UnityEngine;
 
 namespace Victor.Tools
@@ -7,7 +9,6 @@ namespace Victor.Tools
     public static class VTStringExtension
     {
         public enum RichTextBuiltInColorNames { black, white, silver, grey, brown, blue, lightblue, darkblue, cyan, navy, green, lime, red, maroon, orange, yellow, purple, teal, olive };
-        private static StringBuilder s_RichTextBuilder = new StringBuilder();
 
         /// <summary>
         /// Check whether the string is null or empty
@@ -46,7 +47,7 @@ namespace Victor.Tools
 
         public static bool EmptyOrWhiteSpace(this string s)
         {
-            if (s.Length == 0 || s.Trim().Length == 0)
+            if (s != null && (s.Length == 0 || s.Trim().Length == 0))
             {
                 return true;                
             }
@@ -105,6 +106,102 @@ namespace Victor.Tools
             return value.Length <= maxLength ? value : $"{value.Substring(0, maxLength)}{truncateString}";
         }
 
+        public static IEnumerable<int> AllIndicesOf(this string haystack, string needle, StringComparison stringComparison = StringComparison.OrdinalIgnoreCase)
+        {
+            if (string.IsNullOrEmpty(needle))
+            {
+                yield break;
+            }
+
+            for (var index = 0; ; index += needle.Length)
+            {
+                // Get the index of the first occurrence of the needle in the haystack
+                index = haystack.IndexOf(needle, index, stringComparison);
+
+                if (index == -1)
+                {
+                    break;
+                }
+
+                yield return index;
+            }
+        }
+
+        public static string Filter(this string s, bool allowLetter = true, bool allowNumber = true, bool allowWhiteSpace = true, bool allowSymbol = true, bool allowPunctuation = true)
+        {
+            var sb = new StringBuilder();
+
+            foreach (var c in s)
+            {
+                if ((!allowLetter && char.IsLetter(c)) ||
+                    (!allowNumber && char.IsNumber(c)) ||
+                    (!allowWhiteSpace && char.IsWhiteSpace(c)) ||
+                    (!allowSymbol && char.IsSymbol(c)) ||
+                    (!allowPunctuation && char.IsPunctuation(c)))
+                {
+                    continue;
+                }
+
+                sb.Append(c);
+            }
+
+            return sb.ToString();
+        }
+
+        public static bool IsWordDelimiter(char c)
+        {
+            return char.IsWhiteSpace(c) || char.IsSymbol(c) || char.IsPunctuation(c);
+        }
+
+        public static string TrimEnd(this string source, string value)
+        {
+            if (!source.EndsWith(value))
+            {
+                return source;
+            }
+
+            return source.Remove(source.LastIndexOf(value));
+        }
+
+        public static string TrimStart(this string source, string value)
+        {
+            if (!source.StartsWith(value))
+            {
+                return source;
+            }
+
+            return source.Substring(value.Length);
+        }
+
+        public static string FirstCharacterToLower(this string s)
+        {
+            if (string.IsNullOrEmpty(s) || char.IsLower(s, 0))
+            {
+                return s;
+            }
+
+            return char.ToLowerInvariant(s[0]) + s[1..];
+        }
+
+        public static string FirstCharacterToUpper(this string s)
+        {
+            if (string.IsNullOrEmpty(s) || char.IsUpper(s, 0))
+            {
+                return s;
+            }
+            
+            return char.ToUpperInvariant(s[0]) + s[1..];
+        }
+
+        private static readonly Regex guidRegex = new Regex(@"[a-fA-F0-9]{8}(\-[a-fA-F0-9]{4}){3}\-[a-fA-F0-9]{12}");
+
+        public static bool IsUnityGUID(string value)
+        {
+            return guidRegex.IsMatch(value);
+        }
+
+        // Rich Text
+
         public static string Color(this string s, Color color)
         {
             if (s.NullOrEmptyOrWhiteSpace())
@@ -112,11 +209,7 @@ namespace Victor.Tools
                 return s;
             }
 
-            s_RichTextBuilder.Clear();
-            s_RichTextBuilder.Append($"<color=#{VTColor.ColorToHex(color)}>");
-            s_RichTextBuilder.Append(s);
-            s_RichTextBuilder.Append("</color>");
-            return s_RichTextBuilder.ToString();
+            return $"<color=#{VTColor.ColorToHex(color)}>{s}</color>";
         }
 
         /// <summary>
@@ -133,13 +226,15 @@ namespace Victor.Tools
                 return s;
             }
 
-            s_RichTextBuilder.Clear();
-            s_RichTextBuilder.Append($"<color=#{colorHex}>");
-            s_RichTextBuilder.Append(s);
-            s_RichTextBuilder.Append("</color>");
-            return s_RichTextBuilder.ToString();
+            return $"<color=#{colorHex}>{s}</color>";
         }
 
+        /// <summary>
+        /// Use rich text to colorize the string
+        /// </summary>
+        /// <param name="s"></param>
+        /// <param name="builtInColorName"></param>
+        /// <returns></returns>
         public static string Color(this string s, RichTextBuiltInColorNames builtInColorName)
         {
             if (s.NullOrEmptyOrWhiteSpace())
@@ -147,11 +242,7 @@ namespace Victor.Tools
                 return s;
             }
 
-            s_RichTextBuilder.Clear();
-            s_RichTextBuilder.Append($"<color={GetBuiltInColorName(builtInColorName)}>");
-            s_RichTextBuilder.Append(s);
-            s_RichTextBuilder.Append("</color>");
-            return s_RichTextBuilder.ToString();
+            return $"<color={GetBuiltInColorName(builtInColorName)}>{s}</color>";
         }
 
         /// <summary>
@@ -166,11 +257,7 @@ namespace Victor.Tools
                 return s;
             }
 
-            s_RichTextBuilder.Clear();
-            s_RichTextBuilder.Append("<b>");
-            s_RichTextBuilder.Append(s);
-            s_RichTextBuilder.Append("</b>");
-            return s_RichTextBuilder.ToString();
+            return $"<b>{s}</b>";
         }
 
         /// <summary>
@@ -185,15 +272,11 @@ namespace Victor.Tools
                 return s;
             }
 
-            s_RichTextBuilder.Clear();
-            s_RichTextBuilder.Append("<i>");
-            s_RichTextBuilder.Append(s);
-            s_RichTextBuilder.Append("</i>");
-            return s_RichTextBuilder.ToString();
+            return $"<i>{s}</i>";
         }
 
         /// <summary>
-        /// Use rich text to return a size changed version of the input string
+        /// Use rich text to change the size of the string
         /// </summary>
         /// <param name="s"></param>
         /// <param name="textSize"></param>
@@ -205,12 +288,8 @@ namespace Victor.Tools
                 return s;
             }
 
-            textSize = Math.Max(textSize, 0);
-            s_RichTextBuilder.Clear();
-            s_RichTextBuilder.Append($"<size={textSize}>");
-            s_RichTextBuilder.Append(s);
-            s_RichTextBuilder.Append("</size>");
-            return s_RichTextBuilder.ToString();
+            textSize = Math.Max(textSize, 1);
+            return $"<size={textSize}>{s}</size>";
         }
 
         private static string GetBuiltInColorName(RichTextBuiltInColorNames builtInColorName)

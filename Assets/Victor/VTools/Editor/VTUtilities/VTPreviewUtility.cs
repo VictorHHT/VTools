@@ -63,7 +63,7 @@ namespace Victor.Tools
 
                 if (parent != null)
                 {
-                    // AssetPreview.GetAssetPreview gets the preview of the object that passed in, it's not intelligent enough to consider the scale of its parent and adjust,
+                    // AssetPreview.GetAssetPreview is not intelligent enough to consider transform in the full hierarchy and adjust,
                     // so we acquire object's world scale for preview and set back later
                     obj.transform.localScale = obj.transform.lossyScale;
                 }
@@ -81,7 +81,21 @@ namespace Victor.Tools
             // Object doens't have multiple renderers in children, simply get from the first array entry
             if (renderers[0] is SpriteRenderer renderer1 && renderer1.sprite != null)
             {
-                preview = AssetPreview.GetAssetPreview(renderer1.sprite);
+                Transform parent = obj.transform.parent;
+                Vector3 originalLocalScale = obj.transform.localScale;
+
+                if (parent != null)
+                {
+                    obj.transform.localScale = obj.transform.lossyScale;
+                }
+
+                preview = AssetPreview.GetAssetPreview(obj);
+
+                if (parent != null)
+                {
+                    obj.transform.localScale = originalLocalScale;
+                }
+
                 return preview;
             }
 

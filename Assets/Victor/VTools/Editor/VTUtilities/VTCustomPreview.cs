@@ -15,6 +15,7 @@ namespace Victor.Tools
 
         private float m_OverallRadius;
         private bool m_HasModelPreview;
+        private bool m_Initailized;
         private Vector3 m_BoundsCenter;
         // We need to instantiate a new instance of the preview object because all objects added to the preview scene will be destroyed in when PreviewRenderUtility is disposed
         private GameObject m_PreviewInstance;
@@ -91,10 +92,9 @@ namespace Victor.Tools
 
         public override void OnPreviewGUI(Rect rect, GUIStyle background)
         {
-            if (m_PreviewRenderUtility == null)
+            if (m_Initailized == false)
             {
                 m_PreviewRenderUtility = new PreviewRenderUtility();
-
                 Image image = objectToPreview.GetComponent<Image>();
 
                 // If objectToPreview is an UI object, create a new gameobject and add a sprite renderer to it
@@ -111,7 +111,7 @@ namespace Victor.Tools
                     // set its position and rotation in the construction function to make it visible to the camera
                     m_PreviewInstance = Instantiate(objectToPreview, Vector3.zero, Quaternion.identity);
                     m_PreviewInstance.DisableAllScriptsRecursive();
-                    // Internal interactive preview system works on local scale, however its faulty, since it could be deformed by its parent transform
+                    // Internal interactive preview system works on local scale
                     m_PreviewInstance.transform.localScale = objectToPreview.transform.lossyScale;
                 }
 
@@ -131,6 +131,8 @@ namespace Victor.Tools
                     m_RotAroundX = 30f;
                     m_RotAroundY = 50f;
                 }
+
+                m_Initailized = true;
             }
 
             Event evt = Event.current;

@@ -22,6 +22,7 @@ namespace Victor.Tools
         private static VTweenCore s_OutlineScaleTween;
         private static VTweenCore s_OutlinePosTween;
         private static VTweenConfig s_OutlineTweenConfig;
+        private static VTHighlighter s_Highlighter;
 
         [SerializeField]
         private RevealerHit[] m_RevealerHits;
@@ -196,6 +197,11 @@ namespace Victor.Tools
         private void OnEnable()
         {
             EditorSceneManager.sceneOpened += OnSceneOpened;
+
+            if (s_Highlighter == null)
+            {
+                s_Highlighter = new VTHighlighter();
+            }
 
             // Tween
             s_OutlineTweenConfig = new VTweenConfig();
@@ -389,7 +395,7 @@ namespace Victor.Tools
                         // Check if the object is still in the scene
                         if (overlapInfo.gameObject != null && VTGUILayout.ClickableLabel(new GUIContent(overlapInfo.gameObject.name), s_ObjLabelStyle))
                         {
-                            // If the object is being selected, zoom the scene view camera to it
+                            // If the object has been selected, zoom the scene view camera to it
                             if (Selection.activeGameObject == overlapInfo.gameObject)
                             {
                                 float distance;
@@ -416,6 +422,7 @@ namespace Victor.Tools
                                 SceneView sceneView = SceneView.lastActiveSceneView;
                                 // This differs from normal scene look at which focuses on the combined center of parent object and children objects
                                 sceneView.LookAt(objCenter, sceneView.camera.transform.rotation, distance, sceneView.orthographic);
+                                s_Highlighter.HighlightSceneObject(overlapInfo.gameObject);
                             }
 
                             // Clear previously selected GameObjects, because we use Cmd/Ctrl + Shift + LMB as the shortcut,

@@ -138,7 +138,6 @@ namespace Victor.Tools
                     bool isActiveTag = m_SceneTagInfo.tagTexture == settingsProviderInfo.tagTexture;
                     Rect controlRect = EditorGUILayout.GetControlRect(false, 28f, GUILayout.MaxWidth(45));
                     controlRect.width = controlRect.height;
-                    GUIContent content = new GUIContent(m_TagTypeTextures[i]);
 
                     if (isActiveTag)
                     {
@@ -146,7 +145,7 @@ namespace Victor.Tools
                         GUI.contentColor = m_SceneTagInfo.tagColor;
                     }
 
-                    if (VTGUI.Button(controlRect, content, GUI.skin.button, isActiveTag))
+                    if (VTGUI.AnimatedButton(controlRect, new GUIContent(m_TagTypeTextures[i]), GUI.skin.button, isActiveTag, editorWindow.Repaint))
                     {
                         Undo.RecordObject(m_VTSceneLoader.loaderWindowSO.targetObject, "Set Custom Scene Tag Type");
                         m_SceneTagInfo.tagTexture = settingsProviderInfo.tagTexture;

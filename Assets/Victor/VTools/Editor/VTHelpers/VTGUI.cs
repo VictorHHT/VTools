@@ -1,7 +1,9 @@
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
+using Victor.EditorTween;
 
 namespace Victor.Tools
 {
@@ -11,25 +13,34 @@ namespace Victor.Tools
         public const float k_DefaultControlWidthInSettings = 254;
         private static bool s_StoredGUIEnabledResult;
         private static Color s_StoredGUIColor;
-        
-        // private here means this class is only available in this script
-        private static class GUIColorPair
-        {
-            // public here means these fields are publicly available to whatever can access the class
-            public static Color storedBackgroundColor;
-            public static Color storedContentColor;
-        }
+        private static Color s_StoredGUIBackgroundColor;
+        private static Color s_StoredGUIContentColor;
 
         public static void StoreGUIColor()
         {
             s_StoredGUIColor = GUI.color;
         }
 
-        // Meant to be called before changing GUI background color
+        // Meant to be called before changing GUI background color and content color
         public static void StoreGUIBackgroundAndContentColor()
         {
-            GUIColorPair.storedBackgroundColor = GUI.backgroundColor;
-            GUIColorPair.storedContentColor = GUI.contentColor;
+            s_StoredGUIBackgroundColor = GUI.backgroundColor;
+            s_StoredGUIContentColor = GUI.contentColor;
+        }
+
+        public static void StoreGUIBackgroundColor()
+        {
+            s_StoredGUIBackgroundColor = GUI.backgroundColor;
+        }
+
+        public static void StoreGUIContentColor()
+        {
+            s_StoredGUIContentColor = GUI.contentColor;
+        }
+
+        public static void StoreGUIEnabled()
+        {
+            s_StoredGUIEnabledResult = GUI.enabled;
         }
 
         public static void RevertGUIColor()
@@ -37,17 +48,20 @@ namespace Victor.Tools
             GUI.color = s_StoredGUIColor;
         }
 
-        // Use in conjunction with CacheGUIColor to set the background and content colors of the rest of the GUI elements
-        // to the ones preceeding to calling CacheGUIColor method
         public static void RevertGUIBackgroundAndContentColor()
         {
-            GUI.backgroundColor = GUIColorPair.storedBackgroundColor;
-            GUI.contentColor = GUIColorPair.storedContentColor;
+            GUI.backgroundColor = s_StoredGUIBackgroundColor;
+            GUI.contentColor = s_StoredGUIContentColor;
         }
 
-        public static void StoreGUIEnabled()
+        public static void RevertGUIBackgroundColor()
         {
-            s_StoredGUIEnabledResult = GUI.enabled;
+            GUI.backgroundColor = s_StoredGUIBackgroundColor;
+        }
+
+        public static void RevertGUIContentColor()
+        {
+            GUI.contentColor = s_StoredGUIContentColor;
         }
 
         public static void RevertGUIEnabled()
@@ -189,19 +203,11 @@ namespace Victor.Tools
             }
         }
 
-        /// <summary>
-        /// Resemble default GUI button but with more control over the style
-        /// </summary>
-        /// <param name="rect"></param>
-        /// <param name="content"></param>
-        /// <param name="style"></param>
-        /// <param name="isOn"></param>
-        /// <returns></returns>
-        public static bool Button(Rect rect, GUIContent content, GUIStyle style, bool isOn = false)
+        public static bool AnimatedButton(Rect rect, GUIContent content, GUIStyle style, bool isOn, Action repaintCallback, float downSizeMultiplier = 0.925f, float downColorVisibilityMultiplier = 0.9f, float downTweenDuration = 0.5f, EaseType downTweenEaseType = EaseType.EaseOutQuart, float upTweenDuration = 0.4f, EaseType upTweenEaseType = EaseType.EaseOutQuart, float hoverSizeMultiplier = 1.075f, float hoverColorVisibilityMultiplier = 1.2f, float hoverEnterTweenDuration = 0.4f, float hoverExitTweenDuration = 0.4f)
         {
             int controlID = GUIUtility.GetControlID(FocusType.Passive);
-
             Event e = Event.current;
+
             switch (e.GetTypeForControl(controlID))
             {
                 case EventType.MouseDown:
@@ -209,29 +215,117 @@ namespace Victor.Tools
                         if (e.button == 0 && rect.Contains(e.mousePosition))
                         {
                             GUIUtility.hotControl = controlID;
-                            
+                            VTGUIStates.AnimatedButtonState buttonState = (VTGUIStates.AnimatedButtonState)GUIUtility.GetStateObject(typeof(VTGUIStates.AnimatedButtonState), controlID);
+
+                            buttonState.initialRect = rect;
+                            buttonState.currentRect = rect;
+
+                            buttonState.initialColor = GUI.backgroundColor;
+                            buttonState.currentColor = GUI.backgroundColor;
+
+                            buttonState.rectTween?.Remove();
+                            buttonState.animationStarted = true;
+                            buttonState.rectTween = VTweenCreator.TweenRect(buttonState.currentRect, rect => buttonState.currentRect = rect, rect.ScaleAroundCenter(0.925f)).OnValueChanged(() =>
+                            {
+                                repaintCallback?.Invoke();
+                            });
+
+                            buttonState.colorTween?.Remove();
+                            buttonState.colorTween = VTweenCreator.TweenColor(buttonState.currentColor, color => buttonState.currentColor = color, buttonState.initialColor.NewV(0.9f)).OnValueChanged(() =>
+                            {
+                                repaintCallback?.Invoke();
+                            });
+
+                            GUI.changed = true;
                             e.Use();
+                            return true;
                         }
                         break;
                     }
                 case EventType.MouseUp:
                     {
-                        if (rect.Contains(e.mousePosition))
+                        if (GUIUtility.hotControl == controlID)
                         {
-                            if (GUIUtility.hotControl == controlID)
+                            VTGUIStates.AnimatedButtonState buttonState = (VTGUIStates.AnimatedButtonState)GUIUtility.GetStateObject(typeof(VTGUIStates.AnimatedButtonState), controlID);
+
+                            buttonState.rectTween?.Remove();
+                            buttonState.rectTween = VTweenCreator.TweenRect(buttonState.currentRect, rect => buttonState.currentRect = rect, buttonState.initialRect).SetDuration(0.5f).SetEaseType(EaseType.EaseOutQuint).OnValueChanged(() =>
                             {
-                                GUIUtility.hotControl = 0;
-                                // This is essential, otherwise the change to isOn doesn't reflect back
-                                GUI.changed = true;
-                                e.Use();
-                                return true;
-                            }
+                                repaintCallback?.Invoke();
+                            });
+
+                            buttonState.colorTween?.Remove();
+                            buttonState.colorTween = VTweenCreator.TweenColor(buttonState.currentColor, color => buttonState.currentColor = color, buttonState.initialColor).OnValueChanged(() =>
+                            {
+                                repaintCallback?.Invoke();
+                            });
+
+                            GUIUtility.hotControl = 0;
+                            GUI.changed = true;
+                            e.Use();
                         }
                         break;
                     }
                 case EventType.Repaint:
                     {
-                        style.Draw(rect, content, rect.Contains(e.mousePosition), controlID == GUIUtility.hotControl && rect.Contains(e.mousePosition), isOn, false);
+                        VTGUIStates.AnimatedButtonState buttonState = (VTGUIStates.AnimatedButtonState)GUIUtility.GetStateObject(typeof(VTGUIStates.AnimatedButtonState), controlID);
+
+                        if (!buttonState.initialized)
+                        {
+                            buttonState.initialRect = rect;
+                            buttonState.currentRect = rect;
+
+                            buttonState.initialColor = GUI.backgroundColor;
+                            buttonState.currentColor = GUI.backgroundColor;
+
+                            buttonState.initialized = true;
+                        }
+
+                        if (!buttonState.hoverTweenSet && rect.Contains(e.mousePosition))
+                        {
+                            buttonState.rectTween?.Remove();
+                            buttonState.rectTween = VTweenCreator.TweenRect(buttonState.currentRect, rect => buttonState.currentRect = rect, buttonState.initialRect.ScaleAroundCenter(1.075f)).SetDuration(0.4f).SetEaseType(EaseType.EaseOutQuart).OnValueChanged(() =>
+                            {
+                                repaintCallback?.Invoke();
+                            });
+
+                            buttonState.colorTween?.Remove();
+                            buttonState.colorTween = VTweenCreator.TweenColor(buttonState.currentColor, color => buttonState.currentColor = color, buttonState.initialColor.NewV(1.2f)).OnValueChanged(() =>
+                            {
+                                repaintCallback?.Invoke();
+                            });
+
+                            buttonState.hoverTweenSet = true;
+                        }
+
+                        if (buttonState.hoverTweenSet && !rect.Contains(e.mousePosition))
+                        {
+                            buttonState.rectTween?.Remove();
+                            buttonState.rectTween = VTweenCreator.TweenRect(buttonState.currentRect, rect => buttonState.currentRect = rect, buttonState.initialRect).SetDuration(0.4f).SetEaseType(EaseType.EaseOutQuart).OnValueChanged(() =>
+                            {
+                                repaintCallback?.Invoke();
+                            });
+
+                            buttonState.colorTween?.Remove();
+                            buttonState.colorTween = VTweenCreator.TweenColor(buttonState.currentColor, color => buttonState.currentColor = color, buttonState.initialColor).OnValueChanged(() =>
+                            {
+                                repaintCallback?.Invoke();
+                            });
+
+                            buttonState.hoverTweenSet = false;
+                        }
+
+                        StoreGUIBackgroundColor();
+
+                        // Use initial value 
+                        if (buttonState.animationStarted || buttonState.hoverTweenSet && rect.Contains(e.mousePosition) || buttonState.hoverTweenSet == false && !rect.Contains(e.mousePosition))
+                        {
+                            rect = buttonState.currentRect;
+                            GUI.backgroundColor = buttonState.currentColor;
+                        }
+
+                        style.Draw(rect, content, false, controlID == GUIUtility.hotControl, isOn, false);
+                        VTGUI.RevertGUIBackgroundColor();
                         break;
                     }
             }

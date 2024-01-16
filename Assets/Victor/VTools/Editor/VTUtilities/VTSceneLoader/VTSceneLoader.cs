@@ -146,7 +146,7 @@ namespace Victor.Tools
 
             VTSceneLoaderIcons.LoadTextures();
             // Need to make sure the icons displayed in VTSceneTagWindow is always up to date before the window opens
-            // as the 'Tag Icon' folder could be modified externally while the project is closed
+            // as the 'Tag Icon' folder could be modified externally when the project is closed
             VTSceneLoaderUtility.CheckTagIconChanges();
             ValidateAndCacheTagTextures();
 
@@ -373,8 +373,9 @@ namespace Victor.Tools
                 VTGUI.StoreGUIBackgroundAndContentColor();
                 Color labelColor = sceneInfos[index].sceneTagInfo.tagColor;
                 labelColor.a = 1;
-                Color.RGBToHSV(labelColor, out _, out float s, out _);
-                labelColor = labelColor.NewS(Mathf.Min(s, 0.5f));
+                Color.RGBToHSV(labelColor, out _, out float s, out float v);
+                // Make the label color looks brighter when the visibility of tag color is low
+                labelColor = labelColor.NewS(Mathf.Clamp(s * 1.5f - (1 - v) * 0.25f, 0f, 1f)).NewV(Mathf.Min(1.0f, v * 1.3f + s * 0.2f + 0.1f));
 
                 if (!sceneInfos[index].sceneTagInfo.textureMissing)
                 {
@@ -445,7 +446,7 @@ namespace Victor.Tools
 
         private void DrawBuildSettingsSceneList()
         {
-            // Get scenes property is is performance heavy, so we only get it once prior entering the loop;
+            // Get scenes property has a lot overhead, so we only get it once prior entering the loop;
             EditorBuildSettingsScene[] settingsScenes = EditorBuildSettings.scenes;
 
             if (settingsScenes.Length > 0)
@@ -732,6 +733,8 @@ namespace Victor.Tools
                 if (oldSearchText != m_SearchText)
                 {
                     m_Searching = true;
+                    // VTSearchUtility Test
+                    //VTDebug.ClearConsole();
                     FillFilteredList();
                 }
             }
@@ -741,6 +744,8 @@ namespace Victor.Tools
                 {
                     m_Searching = false;
                     m_ReorderableSceneInfos.draggable = true;
+                    // VTSearchUtility Test
+                    //VTDebug.ClearConsole();
                     RestoreOriginal();
                 }
             }
@@ -751,12 +756,15 @@ namespace Victor.Tools
             m_FilteredSceneInfos = m_CustomSceneInfos
                 .Where(sceneInfo =>
                 {
-                    return sceneInfo.sceneAsset != null && VTString.FuzzyMatchSimplified(m_SearchText, sceneInfo.sceneAsset.name);
+                    return sceneInfo.sceneAsset != null && VTSearchUtility.PreFuzzyMatch(m_SearchText, sceneInfo.sceneAsset.name);
                 })
                 .OrderByDescending(sceneInfo =>
                 {
                     int score;
-                    VTString.FuzzyMatchWithScore(m_SearchText, sceneInfo.sceneAsset.name, out score);
+                    VTSearchUtility.FuzzyMatchWithScore(m_SearchText, sceneInfo.sceneAsset.name, out score);
+
+                    // VTSearchUtility Test
+                    //Debug.Log(VTSearchUtility.GetHighlightedQuery(m_SearchText, sceneInfo.sceneAsset.name, "<size=12><color=#24ff85><b>", "</b></color></size>", false).Color(VTStringExtension.RichTextBuiltInColorNames.yellow));
                     return score;
                 }).ToList();
 
@@ -805,8 +813,8 @@ namespace Victor.Tools
                 {
                     sceneInfo.sceneTagInfo.textureMissing = true;
 
-                    // If user has copied a tag type that now invalid, do not allow paste everything
-                    if (m_CopiedTagInfo.tagTexture == sceneInfo.sceneTagInfo.tagTexture)
+                    // If user has copied a tag type and it's now invalid, do not allow paste everything
+                    if (m_CopiedTagInfo != null && m_CopiedTagInfo.tagTexture == sceneInfo.sceneTagInfo.tagTexture)
                     {
                         // Could do m_CanPasteTagType = false, but setting it to null is more natural
                         m_CopiedTagInfo.tagTexture = null;
@@ -1050,7 +1058,6 @@ namespace Victor.Tools
                 }
 
                 loaderMenu.ShowAsContext();
-                GUIUtility.ExitGUI();
             }
         }
     }

@@ -84,8 +84,8 @@ namespace Victor.EditorTween
             }
 
             tween.Pause();
-            tween.m_Time = progress;
-            tween.ApplyTween(tween.m_Time);
+            tween.m_Progress = progress;
+            tween.ApplyTween(tween.m_Progress);
             return tween;
         }
 
