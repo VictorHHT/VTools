@@ -325,7 +325,7 @@ namespace Victor.Tools
                         }
 
                         style.Draw(rect, content, false, controlID == GUIUtility.hotControl, isOn, false);
-                        VTGUI.RevertGUIBackgroundColor();
+                        RevertGUIBackgroundColor();
                         break;
                     }
             }

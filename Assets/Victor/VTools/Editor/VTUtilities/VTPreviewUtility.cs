@@ -99,7 +99,7 @@ namespace Victor.Tools
                 return preview;
             }
 
-            MeshFilter meshFilter1 = obj.GetComponent<MeshFilter>();
+            MeshFilter meshFilter1 = renderers[0].GetComponent<MeshFilter>();
 
             if (renderers[0] is MeshRenderer && meshFilter1 != null && meshFilter1.sharedMesh != null)
             {
