@@ -9,17 +9,17 @@ namespace Victor.Tools
     public static class VTHierarchyView
     {
         public static Dictionary<int, VTSceneObjectCache> sceneObjCacheDict;
+
         private const float k_PreviewWindowWidth = 190;
-        private const float k_PreviewWindowHeight = 120;
+        private const float k_PreviewWindowHeight = 120;        
         private static readonly Color s_RowShadingBackgroundColor = new Color(0, 0, 0, 0.075f);
         private static readonly Color s_RowShadingSeperatorColor = new Color(0, 0, 0, 0.05f);
-        private static float s_LastCacheClearTimeStamp;
-        private static float s_CurrentCacheClearTimeStamp;
+        private static readonly VTHighlighter s_Highlighter;
+        private static double s_LastHierarchyChangeTime;
         private static bool s_ClearTempPreviewResultedChange;
-        private static bool s_PreviewWindowOpenOrClose;
+        private static bool s_ShouldUpdatePreviewWhenEnter = true;
         private static VTPreviewWindow s_ObjectPreviewWindowContent;
-        private static VTHighlighter s_Highlighter;
-
+        
         public enum SiblingIndex
         {
             Middle,
@@ -31,8 +31,8 @@ namespace Victor.Tools
             EditorApplication.hierarchyWindowItemOnGUI += HierarchyWindowItemOnGUI;
             EditorApplication.hierarchyChanged += HierarchyChanged;
             // When we undo/redo while mouse is inside the Hierarchy, make sure parent previews are being updated
-            // We don't call ClearTemporaryPreview because we want to recache objects
             Undo.undoRedoPerformed += UnityEditorDynamic.AssetPreview.ClearTemporaryAssetPreviews();
+
             sceneObjCacheDict = new Dictionary<int, VTSceneObjectCache>();
 
             if (s_Highlighter == null)
@@ -65,11 +65,21 @@ namespace Victor.Tools
                 sceneObjCacheDict[instanceID] = sceneObjectCache;
             }
 
-            // Update previews as mouse entering Hierarchy window
-            // Use handles in the scene view to modify object's position and scale doesn't set hierarchyChanged to true, so we need to manually set it
-            if (Event.current.type == EventType.MouseEnterWindow)
+            // Use handles in the scene view to modify object's position and scale doesn't set hierarchyChanged to true, so we need to manually clear the preview cache
+            if (s_ShouldUpdatePreviewWhenEnter && Event.current.type == EventType.MouseEnterWindow)
             {
                 ClearTemporaryPreview();
+                s_ShouldUpdatePreviewWhenEnter = false;
+            }
+            else if (Event.current.type == EventType.MouseLeaveWindow)
+            {
+                s_ShouldUpdatePreviewWhenEnter = true;
+            }
+
+            if (Event.current.type == EventType.ScrollWheel)
+            {
+                double currentTime = EditorApplication.timeSinceStartup;
+                s_LastHierarchyChangeTime = currentTime;
             }
 
             DrawRowShading(selectionRect);
@@ -83,7 +93,8 @@ namespace Victor.Tools
 
         /// <summary>
         /// Hierarchy changed is set whenever an object's position or scale is changed in the hierarchy,
-        /// temporary previews are cleared, or Undo/Redo that changes scene objects is performed
+        /// temporary previews are cleared, Undo/Redo that changes scene objects is performed and after custom preview window closed.
+        /// And strangely, this is also being called when scrolling in the hierarchy window
         /// </summary>
         private static void HierarchyChanged()
         {
@@ -93,21 +104,21 @@ namespace Victor.Tools
             {
                 s_ClearTempPreviewResultedChange = false;
             }
-            else if (s_PreviewWindowOpenOrClose)
-            {
-                // Object is created or destroyed when preview window open or close, which will set hierarchy changed to true,
-                // but nothing really changed, so skip rest of the code
-                s_PreviewWindowOpenOrClose = false;
-            }
             else
             {
-                for (int i = 0; i < sceneObjCacheDict.Values.Count; i++)
-                {
-                    VTSceneObjectCache objectInfo = sceneObjCacheDict.Values.ToList()[i];
-                    CacheSceneObject(objectInfo);
-                }
+                double currentTime = EditorApplication.timeSinceStartup;
 
-                ClearTemporaryPreview();
+                // Check if it's been less than the threshold since the last hierarchy change, so objects don't get cached during scrolling, which is unecessary and could make scrolling feel unresponsive
+                if (currentTime - s_LastHierarchyChangeTime > 0.5f)
+                {
+                    for (int i = 0; i < sceneObjCacheDict.Values.Count; i++)
+                    {
+                        VTSceneObjectCache objectInfo = sceneObjCacheDict.Values.ToList()[i];
+                        CacheSceneObject(objectInfo);
+                    }
+
+                    ClearTemporaryPreview();
+                }
             }
         }
 
@@ -201,13 +212,11 @@ namespace Victor.Tools
                     // Use lambda expression to capture variables in the scope, using a function that accepts a parameter is otherwise impossible because onOpenCallback expects an Action
                     s_ObjectPreviewWindowContent.onOpenCallback += () =>
                     {
-                        s_PreviewWindowOpenOrClose = true;
                         s_Highlighter.HighlightSceneObject(objectCache.objTransform.gameObject);
                     };
 
                     s_ObjectPreviewWindowContent.onCloseCallback += () =>
                     {
-                        s_PreviewWindowOpenOrClose = true;
                         s_Highlighter.RemoveHighlightedSceneObject(objectCache.objTransform.gameObject);
                     };
 
