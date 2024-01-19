@@ -10,13 +10,13 @@ using Victor.Tools;
 public class VTHighlighter
 {
     public float fadeInDuration = 0.1f;
-    public float fadeOutDuration = 0.9f;
+    public float fadeOutDuration = 0.75f;
     public float fadeOutDelay = 0.2f;
     public bool autoRemove = true;
     public Color highlightSelfColor;
     public Color highlightChildrenColor;
     public EaseType fadeInEaseType = EaseType.EaseOutQuint;
-    public EaseType fadeOutEaseType = EaseType.EaseOutSine;
+    public EaseType fadeOutEaseType = EaseType.EaseOutQuad;
 
     private const CameraEvent k_HighlightCameraEvent = CameraEvent.BeforeImageEffects;
     private static int s_InstanceCount = 0;
@@ -28,8 +28,8 @@ public class VTHighlighter
     public VTHighlighter()
     {
         SceneView.duringSceneGui += DoHighlightObject;
-        highlightSelfColor = Color.red.NewA(0.8f);
-        highlightChildrenColor = Color.blue.NewS(0.8f).NewA(0.8f);
+        highlightSelfColor = Color.red.NewS(0.9f).NewV(0.8f).NewA(0.4f);
+        highlightChildrenColor = Color.blue.NewS(0.8f).NewV(0.9f).NewA(0.35f);
         s_InstanceCount++;
         m_HighlightCommandBufferName = "VTools.VTHighlighter." + s_InstanceCount;
     }
@@ -85,7 +85,7 @@ public class VTHighlighter
             VTweenConfig fadeInHighlightConfig = new VTweenConfig().SetDuration(duration).SetEaseType(fadeInEaseType);
 
             highlightedObjectInfo.selfColorTween?.Remove();
-            highlightedObjectInfo.selfColorTween = VTweenCreator.TweenColor(highlightedObjectInfo.tweenedSelfColor, newColor => highlightedObjectInfo.tweenedSelfColor = newColor, highlightSelfColor.MultS(0.8f).MultV(0.8f).NewA(0.5f)).SetConfig(fadeInHighlightConfig).OnValueChanged(() =>
+            highlightedObjectInfo.selfColorTween = VTweenCreator.TweenColor(highlightedObjectInfo.tweenedSelfColor, newColor => highlightedObjectInfo.tweenedSelfColor = newColor, highlightSelfColor).SetConfig(fadeInHighlightConfig).OnValueChanged(() =>
             {
                 SceneView.RepaintAll();
             }).OnStart(() =>
@@ -100,7 +100,7 @@ public class VTHighlighter
             });
 
             highlightedObjectInfo.childColorTween?.Remove();
-            highlightedObjectInfo.childColorTween = VTweenCreator.TweenColor(highlightedObjectInfo.tweenedChildColor, newColor => highlightedObjectInfo.tweenedChildColor = newColor, highlightChildrenColor.MultS(0.8f).MultV(1.2f).NewA(0.7f)).SetConfig(fadeInHighlightConfig).OnValueChanged(() =>
+            highlightedObjectInfo.childColorTween = VTweenCreator.TweenColor(highlightedObjectInfo.tweenedChildColor, newColor => highlightedObjectInfo.tweenedChildColor = newColor, highlightChildrenColor).SetConfig(fadeInHighlightConfig).OnValueChanged(() =>
             {
                 SceneView.RepaintAll();
             });
@@ -138,7 +138,7 @@ public class VTHighlighter
             VTweenConfig fadeOutTweenConfig = new VTweenConfig().SetDuration(duration).SetEaseType(fadeOutEaseType).SetInitialDelay(shouldHaveDelay ? fadeOutDelay : 0);
 
             highlightedObjectInfo.selfColorTween?.Remove();
-            highlightedObjectInfo.selfColorTween = VTweenCreator.TweenColor(highlightedObjectInfo.tweenedSelfColor, newColor => highlightedObjectInfo.tweenedSelfColor = newColor, Color.white.NewA(0)).SetConfig(fadeOutTweenConfig).OnValueChanged(() =>
+            highlightedObjectInfo.selfColorTween = VTweenCreator.TweenColor(highlightedObjectInfo.tweenedSelfColor, newColor => highlightedObjectInfo.tweenedSelfColor = newColor, highlightSelfColor.NewA(0)).SetConfig(fadeOutTweenConfig).OnValueChanged(() =>
             {
                 SceneView.RepaintAll();
             }).OnStart(() =>
@@ -151,7 +151,7 @@ public class VTHighlighter
             });
 
             highlightedObjectInfo.childColorTween?.Remove();
-            highlightedObjectInfo.childColorTween = VTweenCreator.TweenColor(highlightedObjectInfo.tweenedChildColor, newColor => highlightedObjectInfo.tweenedChildColor = newColor, Color.white.NewA(0)).SetConfig(fadeOutTweenConfig).OnValueChanged(() =>
+            highlightedObjectInfo.childColorTween = VTweenCreator.TweenColor(highlightedObjectInfo.tweenedChildColor, newColor => highlightedObjectInfo.tweenedChildColor = newColor, highlightChildrenColor.NewA(0)).SetConfig(fadeOutTweenConfig).OnValueChanged(() =>
             {
                 SceneView.RepaintAll();
             });
