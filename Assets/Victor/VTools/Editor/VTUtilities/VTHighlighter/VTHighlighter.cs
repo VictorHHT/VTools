@@ -248,8 +248,8 @@ public class VTHighlighter
                 graphics.SetGlobalFloat(roootId, isRoot ? 1 : 0);
 
                 if (renderer is MeshRenderer)
-                {
-                    var mesh = renderer.GetComponent<MeshFilter>().sharedMesh;
+                { 
+                    var mesh = renderer.GetComponent<MeshFilter>().ConvertPseudoNull()?.sharedMesh;
 
                     if (mesh == null)
                     {
