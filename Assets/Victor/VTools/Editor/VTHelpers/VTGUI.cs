@@ -16,6 +16,46 @@ namespace Victor.Tools
         private static Color s_StoredGUIBackgroundColor;
         private static Color s_StoredGUIContentColor;
 
+        // Example usage:
+        // using (VTGUI.GUIEnabledStack.NewOverrideScope(Color.green))
+        // {
+        //    
+        // }
+        public static readonly VTOverrideStack<bool> GUIEnabledStack = new
+        (
+            () => GUI.enabled,
+            value => GUI.enabled = value
+        );
+
+        public static readonly VTOverrideStack<Color> GUIColorStack = new
+        (
+            () => GUI.color,
+            value => GUI.color = value
+        );
+
+        public static readonly VTOverrideStack<Color> GUIBackgroundColorStack = new
+        (
+            () => GUI.backgroundColor,
+            value => GUI.backgroundColor = value
+        );
+
+        public static readonly VTOverrideStack<Color> GUIContentColorStack = new
+        (
+            () => GUI.contentColor,
+            value => GUI.contentColor = value
+        );
+
+        public static readonly VTOverrideStack<(Color, Color)> GUIContentColorAndBackgroundStack = new
+        (
+            () => (GUI.contentColor, GUI.backgroundColor),
+
+            value =>
+            {
+                GUI.contentColor = value.Item1;
+                GUI.backgroundColor = value.Item2;
+            }
+        );
+
         public static void StoreGUIColor()
         {
             s_StoredGUIColor = GUI.color;
