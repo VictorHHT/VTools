@@ -46,8 +46,10 @@ namespace Victor.Tools
         private Color m_UITitleGUIColor;
         private VTweenCore m_ObjTitleColorHueTween;
         private VTweenCore m_ObjTitleGUIColorTween;
+        private VTweenCore m_ObjTitleStringTween;
         private VTweenCore m_UITitleColorHueTween;
         private VTweenCore m_UITitleGUIColorTween;
+        private VTweenCore m_UITitleStringTween;
 
         public static void Init()
         {
@@ -109,7 +111,9 @@ namespace Victor.Tools
                     newPosition.height = 160;
                 }
 
-                if (Application.platform == RuntimePlatform.OSXEditor)
+                bool isOSXEditor = Application.platform == RuntimePlatform.OSXEditor;
+
+                if (isOSXEditor)
                 {
                     // Window Scale Tween
                     VTweenCreator.TweenVector3(window.m_WindowScale, newScale => window.m_WindowScale = newScale, newPosition.size).SetDuration(0.6f).OnValueChanged(() =>
@@ -128,11 +132,11 @@ namespace Victor.Tools
                     window.position = new Rect(newPosition.x, newPosition.y, 220, 160);
                 }
                 
-                VTweenCreator.TweenString<StringAppendApplier>(window.m_GameObjectTitleString, newString => window.m_GameObjectTitleString = newString, "GameObject").SetDuration(0.8f).SetEaseType(EaseType.EaseInOutSine).SetInitialDelay(0.4f).OnValueChanged(window.Repaint)
+                window.m_ObjTitleStringTween = VTweenCreator.TweenString<StringAppendApplier>(window.m_GameObjectTitleString, newString => window.m_GameObjectTitleString = newString, "GameObject").SetDuration(0.8f).SetEaseType(EaseType.EaseInOutSine).SetInitialDelay(isOSXEditor ? 0.4f : 0.1f).OnValueChanged(window.Repaint)
                     .OnComplete(() =>
                     {
                         // Don't forget the reserved newline for the title string to
-                        VTweenCreator.TweenString<StringAppendApplier>(window.m_GameObjectTitleString + "\n", (newString) => window.m_GameObjectTitleString = newString, "GameObject" + "\n Count: 0").SetDuration(0.9f).SetEaseType(EaseType.EaseInQuad).OnValueChanged(window.Repaint).OnStart(() =>
+                        window.m_ObjTitleStringTween = VTweenCreator.TweenString<StringAppendApplier>(window.m_GameObjectTitleString + "\n", (newString) => window.m_GameObjectTitleString = newString, "GameObject" + "\n Count: 0").SetDuration(0.9f).SetEaseType(EaseType.EaseInQuad).OnValueChanged(window.Repaint).OnStart(() =>
                         {
                             window.m_ShouldAppendObjNewLine = false;
                         })
@@ -147,10 +151,10 @@ namespace Victor.Tools
                         });
                     });
 
-                VTweenCreator.TweenString<StringAppendApplier>(window.m_UITitleString, newString => window.m_UITitleString = newString, "UI").SetDuration(objOverlapCount != 0 ? 0.8f : 0.5f).SetEaseType(EaseType.EaseOutCirc).SetInitialDelay(0.2f).OnValueChanged(window.Repaint)
+                window.m_UITitleStringTween = VTweenCreator.TweenString<StringAppendApplier>(window.m_UITitleString, newString => window.m_UITitleString = newString, "UI").SetDuration(objOverlapCount != 0 ? 0.8f : 0.5f).SetEaseType(EaseType.EaseOutCirc).SetInitialDelay(isOSXEditor ? 0.2f : 0.05f).OnValueChanged(window.Repaint)
                     .OnComplete(() =>
                     {
-                        VTweenCreator.TweenString<StringAppendApplier>(window.m_UITitleString + "\n", (newString) => window.m_UITitleString = newString, "UI" + "\n Count: 0").SetDuration(1).SetEaseType(EaseType.EaseInSine).SetInitialDelay(objOverlapCount != 0 ? 0.4f : 0.1f).OnValueChanged(window.Repaint).OnStart(() =>
+                        window.m_UITitleStringTween = VTweenCreator.TweenString<StringAppendApplier>(window.m_UITitleString + "\n", (newString) => window.m_UITitleString = newString, "UI" + "\n Count: 0").SetDuration(1).SetEaseType(EaseType.EaseInSine).SetInitialDelay(objOverlapCount != 0 ? 0.4f : 0.1f).OnValueChanged(window.Repaint).OnStart(() =>
                         {
                             window.m_ShouldAppendUINewLine = false;
                         })
@@ -228,8 +232,11 @@ namespace Victor.Tools
             // Tween
             m_ObjTitleColorHueTween?.Remove();
             m_ObjTitleGUIColorTween?.Remove();
+            m_ObjTitleStringTween?.Remove();
+
             m_UITitleColorHueTween?.Remove();
             m_UITitleGUIColorTween?.Remove();
+            m_UITitleStringTween?.Remove();
         }
 
         // When this window closes, also close opening preview window
