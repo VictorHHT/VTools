@@ -119,18 +119,23 @@ namespace Victor.Tools
         /// <returns>The rotated point.</returns>
         public static Vector2 RotatePointAroundPivot(Vector2 point, Vector2 pivot, Vector2 angleVec)
         {
-            Vector3 direction = point - pivot;
+            Vector2 direction = point - pivot;
             direction = Quaternion.Euler(angleVec) * direction;
-            point = direction.ToV2FromXY() + pivot;
+            point = direction + pivot;
             return point;
         }
 
         public static Vector2 RotatePointAroundPivot(Vector2 point, Vector2 pivot, float zAngle)
         {
-            Vector3 direction = point - pivot;
+            Vector2 direction = point - pivot;
             direction = Quaternion.Euler(new Vector3(0, 0, zAngle)) * direction;
-            point = direction.ToV2FromXY() + pivot;
+            point = direction + pivot;
             return point;
+        }
+
+        public static Vector2 RotatePointAroundPivot(Vector2 point, Vector2 pivot, Quaternion rotation)
+        {
+            return rotation * (point - pivot) + pivot.ToV3XY();
         }
 
         /// <summary>
